@@ -123,7 +123,7 @@ there is more information about PRIMARY KEYs further down in this section).
     conn.close()
     
 
-Download the script: [create_new_db.py](https://raw.github.com/rasbt/python_reference/master/tutorials/code/create_new_db.py)
+Download the script: [create_new_db.py](https://github.com/rasbt/python_reference/blob/master/tutorials/sqlite3_howto/code/create_new_db.py)
 
 * * *
 
@@ -207,7 +207,7 @@ Let's have a look at some code:
     conn.close()
     
 
-Download the script: [add_new_column.py](https://raw.github.com/rasbt/python_reference/master/tutorials/code/add_new_column.py)
+Download the script: [add_new_column.py](https://github.com/rasbt/python_reference/blob/master/tutorials/sqlite3_howto/code/add_new_column.py)
 
   
   
@@ -270,8 +270,7 @@ But let us first have a look at the example code:
     conn.close()
     
 
-Download the script: [update_or_insert_records.py](https://raw.github.com/rasb
-t/python_sqlite_code/master/code/update_or_insert_records.py)  
+Download the script: [update_or_insert_records.py](code/update_or_insert_records.py)  
   
 ![3_sqlite3_insert_update.png](../../Images/3_sqlite3_insert_update.png)  
   
@@ -335,8 +334,7 @@ drop the index, which is also shown in the code below.
     conn.close()
     
 
-Download the script: [create_unique_index.py](https://raw.github.com/rasbt/pyt
-hon_sqlite_code/master/code/create_unique_index.py)  
+Download the script: [create_unique_index.py](code/create_unique_index.py)  
   
 ![4_sqlite3_unique_index.png](../../Images/4_sqlite3_unique_index.png)  
   
@@ -401,8 +399,7 @@ row entries for all or some columns if they match certain criteria.
     conn.close()
     
 
-Download the script: [selecting_entries.py](https://raw.github.com/rasbt/pytho
-n_sqlite_code/master/code/selecting_entries.py)  
+Download the script: [selecting_entries.py](code/selecting_entries.py)  
   
 
 ![4_sqlite3_unique_index.png](../../Images/4_sqlite3_unique_index.png)  
@@ -542,8 +539,7 @@ that have been added xxx days ago.
     conn.close()
     
 
-Download the script: [date_time_ops.py](https://raw.github.com/rasbt/python_sq
-lite_code/master/code/date_time_ops.py)
+Download the script: [date_time_ops.py](code/date_time_ops.py)
 
   
   
@@ -645,8 +641,7 @@ column names):
     conn.close()
     
 
-Download the script: [get_columnnames.py](https://raw.github.com/rasbt/python_
-sqlite_code/master/code/get_columnnames.py)  
+Download the script: [get_columnnames.py](code/get_columnnames.py)  
   
 ![7_sqlite3_get_colnames_1.png](../../Images/7_sqlite3_get_colnames_1.png)  
   
@@ -682,53 +677,58 @@ convenient script to print a nice overview of SQLite database tables:
     
     
     import sqlite3
-    
+
+
     def connect(sqlite_file):
         """ Make connection to an SQLite database file """
         conn = sqlite3.connect(sqlite_file)
         c = conn.cursor()
         return conn, c
-    
+
+
     def close(conn):
         """ Commit changes and close connection to the database """
         # conn.commit()
         conn.close()
-    
+
+
     def total_rows(cursor, table_name, print_out=False):
         """ Returns the total number of rows in the database """
-        c.execute('SELECT COUNT(*) FROM {}'.format(table_name))
-        count = c.fetchall()
+        cursor.execute('SELECT COUNT(*) FROM {}'.format(table_name))
+        count = cursor.fetchall()
         if print_out:
             print('\nTotal rows: {}'.format(count[0][0]))
         return count[0][0]
-    
+
+
     def table_col_info(cursor, table_name, print_out=False):
-        """ 
-           Returns a list of tuples with column informations:
-          (id, name, type, notnull, default_value, primary_key)
-        
+        """ Returns a list of tuples with column informations:
+        (id, name, type, notnull, default_value, primary_key)
         """
-        c.execute('PRAGMA TABLE_INFO({})'.format(table_name))
-        info = c.fetchall()
-        
+        cursor.execute('PRAGMA TABLE_INFO({})'.format(table_name))
+        info = cursor.fetchall()
+
         if print_out:
             print("\nColumn Info:\nID, Name, Type, NotNull, DefaultVal, PrimaryKey")
             for col in info:
                 print(col)
         return info
-    
+
+
     def values_in_col(cursor, table_name, print_out=True):
-        """ Returns a dictionary with columns as keys and the number of not-null 
-            entries as associated values.
+        """ Returns a dictionary with columns as keys
+        and the number of not-null entries as associated values.
         """
-        c.execute('PRAGMA TABLE_INFO({})'.format(table_name))
-        info = c.fetchall()
+        cursor.execute('PRAGMA TABLE_INFO({})'.format(table_name))
+        info = cursor.fetchall()
         col_dict = dict()
         for col in info:
             col_dict[col[1]] = 0
         for col in col_dict:
-            c.execute('SELECT ({0}) FROM {1} WHERE {0} IS NOT NULL'.format(col, table_name))
-            # In my case this approach resulted in a better performance than using COUNT
+            c.execute('SELECT ({0}) FROM {1} '
+                      'WHERE {0} IS NOT NULL'.format(col, table_name))
+            # In my case this approach resulted in a
+            # better performance than using COUNT
             number_rows = len(c.fetchall())
             col_dict[col] = number_rows
         if print_out:
@@ -736,23 +736,22 @@ convenient script to print a nice overview of SQLite database tables:
             for i in col_dict.items():
                 print('{}: {}'.format(i[0], i[1]))
         return col_dict
-    
-    
+
+
     if __name__ == '__main__':
-    
+
         sqlite_file = 'my_first_db.sqlite'
         table_name = 'my_table_3'
-    
+
         conn, c = connect(sqlite_file)
         total_rows(c, table_name, print_out=True)
         table_col_info(c, table_name, print_out=True)
-        values_in_col(c, table_name, print_out=True) # slow on large data bases
-        
-        close(conn)
-    
+        # next line might be slow on large databases
+        values_in_col(c, table_name, print_out=True)
 
-Download the script: [print_db_info.py](https://raw.github.com/rasbt/python_sq
-lite_code/master/code/print_db_info.py)  
+        close(conn)
+
+Download the script: [print_db_info.py](code/print_db_info.py)  
   
 ![8_sqlite3_print_db_info_1.png](../../Images/8_sqlite3_print_db_info_1.png)  
   
